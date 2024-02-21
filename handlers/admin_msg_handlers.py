@@ -104,8 +104,37 @@ async def edit_product(query: CallbackQuery, state: FSMContext):
 async def edit_product1(query: CallbackQuery, state: FSMContext):
     if query.data == "name":
         await query.message.delete()
-        await query.message.answer(text="Send me a new name")
+        await query.message.answer(text="Send me a new name",reply_markup=cancel)
+        await state.set_state(CategoryStates.edit_name)
     elif query.data == "photo":
-        pass
+        await query.message.delete()
+        await query.message.answer(text="Send me a new photo",reply_markup=cancel)
+        await state.set_state(CategoryStates.edit_photo)
     else:
-        pass
+        await query.message.delete()
+        await query.message.answer(text="Send me a new category",reply_markup=cancel)
+        await state.set_state(CategoryStates.edit_url)
+@admin_message_router.message(CategoryStates.edit_name)
+async def edit_name(msg: Message, state: FSMContext):
+    if db.edit_product_name(product_name=msg.text,old_product_name=(await state.get_data()).get("product_name")):
+        await state.clear()
+        await msg.answer("Name changed",reply_markup=ReplyKeyboardRemove())
+@admin_message_router.message(CategoryStates.edit_photo)
+async def edit_name(msg: Message, state: FSMContext):
+    try:
+        if db.edit_product_photo(photo_file_id=msg.photo[-1].file_id,product_name=(await state.get_data()).get("product_name")):
+            await state.clear()
+            await msg.answer("Photo changed",reply_markup=ReplyKeyboardRemove())
+        else:
+            await state.clear()
+            await msg.answer("Unknown error", reply_markup=ReplyKeyboardRemove())
+    except:
+        await msg.answer(text="Send me a new photo")
+@admin_message_router.message(CategoryStates.edit_url)
+async def edit_category(msg: Message, state: FSMContext):
+    if db.get_categorie(msg.text):
+        db.edit_product_category(new_category=msg.text,product_name=(await state.get_data()).get("product_name"))
+        await state.clear()
+        await msg.answer(text="Category changed")
+    else:
+        await msg.answer(text="this category didn't found. Please send me a new category name")

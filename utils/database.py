@@ -105,9 +105,23 @@ class Database:
             return True
         except:
             return False
-    def edit_product(self,product_name,old_product_name):
+    def edit_product_name(self,product_name,old_product_name):
         try:
             self.cursor.execute("UPDATE products SET product_name=? WHERE product_name=?",(product_name,old_product_name))
+            self.conn.commit()
+            return True
+        except:
+            return False
+    def edit_product_photo(self,photo_file_id,product_name):
+        try:
+            self.cursor.execute("UPDATE products SET product_image=? WHERE product_name=?",(photo_file_id,product_name))
+            self.conn.commit()
+            return True
+        except:
+            return False
+    def edit_product_category(self,new_category,product_name):
+        try:
+            self.cursor.execute("UPDATE products SET product_category=? WHERE product_name=?",(new_category,product_name))
             self.conn.commit()
             return True
         except:
@@ -121,7 +135,7 @@ class Database:
             return False
     def get_products(self):
         products = self.cursor.execute("SELECT product_name FROM products;")
-        return products
+        return products.fetchall()
     def get_product(self):
         products = self.cursor.execute("SELECT * FROM products;")
         return products.fetchall()

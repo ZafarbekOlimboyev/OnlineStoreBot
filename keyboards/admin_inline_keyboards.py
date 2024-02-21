@@ -25,7 +25,10 @@ def make_product_list() -> InlineKeyboardMarkup:
     products = db.get_products()
     rows = []
     for product in products:
-        rows += product
+        name = product[0]
+        rows.append([
+            InlineKeyboardButton(text=str(name),callback_data=str(name))
+        ])
     kb_products = InlineKeyboardMarkup(inline_keyboard=rows)
     return kb_products
 
