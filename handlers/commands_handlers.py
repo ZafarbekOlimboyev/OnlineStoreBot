@@ -85,3 +85,7 @@ async def add_new_product(msg: Message, state: FSMContext):
 async def edit_product(msg: Message, state: FSMContext):
     await msg.answer(text="Choose product",reply_markup=make_product_list())
     await state.set_state(CategoryStates.edit_product)
+@commands_router.message(Command("del_product"))
+async def edit_product(msg: Message, state: FSMContext):
+    await msg.answer(text="Choose product",reply_markup=make_product_list())
+    await state.set_state(CategoryStates.del_product)

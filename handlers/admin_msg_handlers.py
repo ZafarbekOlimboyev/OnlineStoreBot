@@ -44,6 +44,7 @@ async def delcategory(query: CallbackQuery,state: FSMContext):
     else:
         await query.message.delete()
         await query.answer("Canceled")
+        await state.clear()
 @admin_message_router.message(CategoryStates.add_product_name)
 async def product_name(msg: Message, state: FSMContext):
     await state.update_data(name=msg.text)
@@ -138,3 +139,23 @@ async def edit_category(msg: Message, state: FSMContext):
         await msg.answer(text="Category changed")
     else:
         await msg.answer(text="this category didn't found. Please send me a new category name")
+@admin_message_router.callback_query(CategoryStates.del_product)
+async def del_product(query: CallbackQuery, state: FSMContext):
+    await query.message.delete()
+    await state.update_data(name=query.data)
+    await query.message.answer(text="Delete Product?", reply_markup=yes_or_no)
+    await state.set_state(CategoryStates.del_product_state)
+@admin_message_router.callback_query(CategoryStates.del_product_state)
+async def delproduct(query: CallbackQuery, state: FSMContext):
+    if query.data == "yes":
+        await query.message.delete()
+        if db.del_product(str((await state.get_data()).get("name"))):
+            await query.message.answer(text="Product deleted")
+            await state.clear()
+        else:
+            await query.message.answer(text="Unknown error..")
+            await state.clear()
+    else:
+        await query.message.delete()
+        await state.clear()
+        await query.answer("Canceled")

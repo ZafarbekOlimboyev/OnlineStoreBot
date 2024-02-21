@@ -19,3 +19,5 @@ class CategoryStates(StatesGroup):
     edit_photo = State()
     edit_url = State()
     edit_p = State()
+    del_product = State()
+    del_product_state = State()
